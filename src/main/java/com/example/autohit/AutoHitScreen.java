@@ -46,9 +46,9 @@ public class AutoHitScreen extends Screen {
         // Header
         MutableComponent title = Component.literal("AutoHit")
                 .withStyle(s -> s.withColor(ACCENT).withBold(true));
-        addRenderableWidget(new StringWidget(left + 12, top + 10, 150, 10, title, this.font).alignLeft());
-        addRenderableWidget(new StringWidget(left + PANEL_W - 162, top + 10, 150, 10,
-                muted("Minecraft 26.2  ·  Fabric"), this.font).alignRight());
+        addRenderableWidget(text(left + 12, top + 10, title));
+        MutableComponent sub = muted("Minecraft 26.2  ·  Fabric");
+        addRenderableWidget(text(left + PANEL_W - 12 - this.font.width(sub), top + 10, sub));
 
         // Tabs
         int tabW = (PANEL_W - 24 - (TABS.length - 1) * 4) / TABS.length;
@@ -119,14 +119,18 @@ public class AutoHitScreen extends Screen {
 
     /** Lays out one settings row: label + description on the left, control on the right. */
     private int row(int y, String label, String description, net.minecraft.client.gui.components.AbstractWidget control) {
-        addRenderableWidget(new StringWidget(left + 14, y + 4, PANEL_W - CTRL_W - 40, 10,
-                Component.literal(label).withStyle(s -> s.withColor(TEXT)), this.font).alignLeft());
-        addRenderableWidget(new StringWidget(left + 14, y + 16, PANEL_W - CTRL_W - 40, 10,
-                muted(description), this.font).alignLeft());
+        addRenderableWidget(text(left + 14, y + 4,
+                Component.literal(label).withStyle(s -> s.withColor(TEXT))));
+        addRenderableWidget(text(left + 14, y + 16, muted(description)));
         control.setX(left + PANEL_W - CTRL_W - 14);
         control.setY(y + (ROW_H - 20) / 2 - 1);
         addRenderableWidget(control);
         return y + ROW_H;
+    }
+
+    /** Text label sized exactly to its content, so it is left-aligned at (x, y). */
+    private StringWidget text(int x, int y, Component c) {
+        return new StringWidget(x, y, this.font.width(c), 10, c, this.font);
     }
 
     private static MutableComponent muted(String s) {
@@ -183,7 +187,7 @@ public class AutoHitScreen extends Screen {
     @Override
     public void onClose() {
         AutoHitConfig.save();
-        this.minecraft.setScreenAndShow(parent);
+        this.minecraft.gui.setScreen(parent);
     }
 
     private static class Slider extends AbstractSliderButton {
