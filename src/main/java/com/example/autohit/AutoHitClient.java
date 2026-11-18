@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -33,7 +32,7 @@ public class AutoHitClient implements ClientModInitializer {
     private static int waitTicks;
 
     @Override
-    public void onInitialize() {
+    public void onInitializeClient() {
         AutoHitConfig.load();
 
         KeyMapping.Category category =
@@ -69,12 +68,11 @@ public class AutoHitClient implements ClientModInitializer {
         AutoHitConfig cfg = AutoHitConfig.INSTANCE;
 
         while (menuKey.consumeClick()) {
-            mc.setScreenAndShow(new AutoHitScreen(mc.screen));
+            mc.gui.setScreen(new AutoHitScreen(mc.gui.screen()));
         }
         while (toggleKey.consumeClick()) {
             cfg.enabled = !cfg.enabled;
             AutoHitConfig.save();
-            p.displayClientMessage(Component.literal("AutoHit: " + (cfg.enabled ? "ON" : "OFF")), true);
         }
 
         // Drop stale focus
@@ -95,7 +93,7 @@ public class AutoHitClient implements ClientModInitializer {
 
     /** @return true if a hit was ready but is being held for a better one. */
     private static boolean process(Minecraft mc, LocalPlayer p, AutoHitConfig cfg) {
-        if (!cfg.enabled || mc.screen != null || p.isSpectator()) return false;
+        if (!cfg.enabled || mc.gui.screen() != null || p.isSpectator()) return false;
         if (cfg.pauseWhileUsingItem && p.isUsingItem()) return false;
 
         // hitResult is what your crosshair actually touches, so a wall/block in front
